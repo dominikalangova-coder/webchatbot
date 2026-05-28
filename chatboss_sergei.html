@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0b0e14;
+  --s1:#111520;
+  --s2:#161c28;
+  --s3:#1d2436;
+  --blue:#1e6fa8;
+  --blue2:#2a90d4;
+  --blue3:#4db8f0;
+  --pink:#d4537e;
+  --pink2:#f07aaa;
+  --border:rgba(45,110,180,0.22);
+  --border2:rgba(45,110,180,0.4);
+  --text:#e8edf8;
+  --text2:#7a9abf;
+  --text3:#3d5a7a;
+  --mono:'Space Mono',monospace;
+  --sans:'Space Grotesk',sans-serif;
+  --r:12px;
+  --r-sm:8px;
+}
+body{background:var(--bg);color:var(--text);font-family:var(--sans);min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:0 0 40px}
+
+/* scanline overlay */
+body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.04) 2px,rgba(0,0,0,0.04) 4px);pointer-events:none;z-index:999}
+
+.app{width:100%;max-width:700px;display:flex;flex-direction:column;gap:0}
+
+/* ── HERO BANNER ── */
+.hero{background:var(--s1);border-bottom:1px solid var(--border2);padding:0;overflow:hidden;position:relative}
+.hero-bg{width:100%;height:180px;background:linear-gradient(135deg,#070d1a 0%,#0d1e35 40%,#0e1e3a 60%,#0a1525 100%);position:relative;display:flex;align-items:flex-end}
+
+/* animated circuit lines */
+.hero-bg::before{content:'';position:absolute;inset:0;background-image:linear-gradient(rgba(30,111,168,0.08) 1px,transparent 1px),linear-gradient(90deg,rgba(30,111,168,0.08) 1px,transparent 1px);background-size:32px 32px}
+.hero-bg::after{content:'713';position:absolute;right:20px;top:12px;font-family:var(--mono);font-size:72px;font-weight:700;color:rgba(30,111,168,0.07);letter-spacing:-2px;pointer-events:none;user-select:none}
+
+/* avatar — SVG illustration */
+.avatar-wrap{position:absolute;left:24px;bottom:0;width:120px;height:160px}
+.avatar-wrap svg{width:100%;height:100%}
+
+.hero-info{padding:16px 20px 16px 160px;flex:1}
+.name-badge{display:flex;align-items:center;gap:8px;margin-bottom:4px}
+.name-badge h1{font-size:22px;font-weight:700;color:#fff;letter-spacing:-0.5px}
+.live-badge{background:var(--blue);color:#b8daf8;font-size:10px;font-family:var(--mono);padding:3px 8px;border-radius:4px;letter-spacing:.08em}
+.real-name{font-size:12px;color:var(--text2);font-family:var(--mono);margin-bottom:8px}
+.real-name span{color:var(--blue3)}
+
+.tags{display:flex;flex-wrap:wrap;gap:5px}
+.tag{font-size:10px;font-family:var(--mono);padding:3px 9px;border-radius:4px;border:0.5px solid var(--border2);color:var(--text2);background:rgba(30,111,168,0.1)}
+.tag.hot{border-color:rgba(212,83,126,0.4);color:#f07aaa;background:rgba(212,83,126,0.08)}
+
+/* ── BIO CARDS ── */
+.bio-strip{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--border);border-bottom:1px solid var(--border)}
+.bio-cell{background:var(--s1);padding:12px 14px;text-align:center}
+.bio-cell .bval{font-size:15px;font-weight:700;color:var(--blue3);font-family:var(--mono)}
+.bio-cell .blbl{font-size:10px;color:var(--text3);margin-top:2px;text-transform:uppercase;letter-spacing:.07em}
+
+/* ── TABS ── */
+.tabs{display:flex;background:var(--s2);border-bottom:1px solid var(--border)}
+.tab{flex:1;padding:10px 6px;border:none;background:transparent;font-size:11.5px;font-weight:600;color:var(--text3);cursor:pointer;font-family:var(--sans);transition:all .18s;letter-spacing:.03em;border-bottom:2px solid transparent}
+.tab.active{color:var(--blue3);border-bottom-color:var(--blue3)}
+.tab:hover:not(.active){color:var(--text2)}
+
+/* ── CHAT ── */
+.chat-area{background:var(--s1);display:flex;flex-direction:column}
+.chat-win{height:360px;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px;scroll-behavior:smooth}
+.chat-win::-webkit-scrollbar{width:4px}
+.chat-win::-webkit-scrollbar-thumb{background:var(--border2);border-radius:99px}
+
+.msg{display:flex;gap:8px;animation:fu .2s ease}
+@keyframes fu{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
+.msg.user{flex-direction:row-reverse}
+
+.mav{width:30px;height:30px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;font-family:var(--mono)}
+.msg.bot .mav{background:var(--s3);border:1px solid var(--border2);color:var(--blue3);font-size:13px}
+.msg.user .mav{background:var(--pink);color:#fff}
+
+.bubble{max-width:78%;padding:9px 13px;border-radius:12px;font-size:13px;line-height:1.55;word-break:break-word}
+.msg.bot .bubble{background:var(--s3);border:0.5px solid var(--border);border-bottom-left-radius:3px;color:var(--text)}
+.msg.user .bubble{background:var(--pink);border-bottom-right-radius:3px;color:#fff}
+.mtime{font-size:9px;color:var(--text3);align-self:flex-end;font-family:var(--mono);white-space:nowrap}
+
+/* ── INFO PANEL ── */
+.info-panel{display:none;flex-direction:column;gap:0;max-height:360px;overflow-y:auto}
+.info-panel.visible{display:flex}
+.info-panel::-webkit-scrollbar{width:4px}
+.info-panel::-webkit-scrollbar-thumb{background:var(--border2);border-radius:99px}
+
+.info-section{border-bottom:0.5px solid var(--border)}
+.info-header{padding:12px 16px;font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.1em;font-family:var(--mono)}
+.info-row{display:flex;align-items:flex-start;gap:10px;padding:8px 16px;border-top:0.5px solid rgba(45,110,180,0.1)}
+.info-row:hover{background:rgba(30,111,168,0.05)}
+.info-key{font-size:11.5px;color:var(--text3);font-family:var(--mono);min-width:100px;flex-shrink:0;padding-top:1px}
+.info-val{font-size:13px;color:var(--text);font-weight:500;line-height:1.4}
+.info-val a{color:var(--blue3);text-decoration:none}
+
+.disc-item{padding:8px 16px;border-top:0.5px solid rgba(45,110,180,0.1);display:flex;align-items:center;gap:10px}
+.disc-item:hover{background:rgba(30,111,168,0.05)}
+.disc-year{font-size:11px;font-family:var(--mono);color:var(--text3);min-width:38px}
+.disc-name{font-size:13px;color:var(--text);font-weight:500}
+.disc-type{font-size:10px;font-family:var(--mono);padding:2px 7px;border-radius:4px;margin-left:auto;flex-shrink:0}
+.dt-album{background:rgba(30,111,168,0.15);color:var(--blue3);border:0.5px solid var(--border2)}
+.dt-mix{background:rgba(212,83,126,0.1);color:var(--pink2);border:0.5px solid rgba(212,83,126,0.3)}
+.dt-ep{background:rgba(45,180,100,0.1);color:#5dcaa5;border:0.5px solid rgba(45,180,100,0.3)}
+
+/* ── LEARN BOX ── */
+.learn-box{background:var(--s2);border-top:0.5px solid var(--border2);padding:12px 14px;display:none;flex-direction:column;gap:8px}
+.learn-box.visible{display:flex}
+.learn-box p{font-size:12px;color:var(--blue3);font-family:var(--mono)}
+.learn-row{display:flex;gap:8px}
+.learn-box input{flex:1;background:var(--s3);border:0.5px solid var(--border2);border-radius:var(--r-sm);padding:8px 12px;font-size:13px;color:var(--text);font-family:var(--sans);outline:none;transition:border-color .18s}
+.learn-box input:focus{border-color:var(--blue2)}
+.learn-box button{background:var(--blue);border:none;border-radius:var(--r-sm);padding:8px 14px;font-size:12px;font-weight:600;color:#fff;cursor:pointer;font-family:var(--sans);transition:opacity .18s;white-space:nowrap}
+.learn-box button:hover{opacity:.85}
+
+/* ── CHIPS ── */
+.chips-wrap{background:var(--s2);border-top:0.5px solid var(--border);padding:10px 14px;display:flex;flex-wrap:wrap;gap:6px}
+.chip{background:var(--s3);border:0.5px solid var(--border2);border-radius:99px;padding:5px 12px;font-size:11px;color:var(--text2);cursor:pointer;font-family:var(--mono);transition:all .18s}
+.chip:hover{border-color:var(--blue2);color:var(--blue3)}
+
+/* ── INPUT ── */
+.input-wrap{background:var(--s2);border-top:0.5px solid var(--border);padding:10px 12px;display:flex;gap:8px}
+.input-wrap:focus-within{border-top-color:var(--blue2)}
+#uInput{flex:1;background:var(--s3);border:0.5px solid var(--border);border-radius:var(--r-sm);padding:9px 14px;font-size:13px;color:var(--text);font-family:var(--sans);outline:none;transition:border-color .18s}
+#uInput:focus{border-color:var(--blue2)}
+#uInput::placeholder{color:var(--text3)}
+.send-btn{background:var(--blue);border:none;border-radius:var(--r-sm);width:38px;height:38px;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;color:#fff;font-size:16px;transition:opacity .15s,transform .1s}
+.send-btn:hover{opacity:.85}
+.send-btn:active{transform:scale(.93)}
+
+/* ── FOOTER ── */
+.footer{background:var(--s2);border-top:0.5px solid var(--border);padding:8px 14px;display:flex;gap:8px;justify-content:space-between;align-items:center}
+.footer-stats{display:flex;gap:12px}
+.fstat{font-size:10px;font-family:var(--mono);color:var(--text3)}
+.fstat span{color:var(--blue3)}
+.footer-btns{display:flex;gap:6px}
+.fbtn{background:transparent;border:0.5px solid var(--border2);border-radius:6px;padding:5px 12px;font-size:11px;color:var(--text3);cursor:pointer;font-family:var(--mono);transition:all .18s}
+.fbtn:hover{border-color:var(--blue2);color:var(--blue3)}
+</style>
+</head>
+<body>
+<div class="app">
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-bg">
+    <div class="avatar-wrap">
+      <svg viewBox="0 0 120 160" xmlns="http://www.w3.org/2000/svg">
+        <!-- body / shirt -->
+        <rect x="15" y="110" width="90" height="55" rx="6" fill="#0d1520"/>
+        <!-- neck cybernetic -->
+        <rect x="48" y="88" width="14" height="26" rx="3" fill="#1a2540"/>
+        <!-- cyber neck plates -->
+        <rect x="54" y="89" width="10" height="3" rx="1" fill="#2a90d4" opacity=".7"/>
+        <rect x="54" y="94" width="10" height="3" rx="1" fill="#2a90d4" opacity=".5"/>
+        <rect x="54" y="99" width="10" height="3" rx="1" fill="#2a90d4" opacity=".4"/>
+        <!-- wires -->
+        <path d="M58 88 Q62 80 68 85 Q74 90 72 100" stroke="#4db8f0" stroke-width="1" fill="none" opacity=".6"/>
+        <path d="M58 88 Q52 78 46 84 Q40 90 42 102" stroke="#f0c060" stroke-width="1" fill="none" opacity=".5"/>
+        <!-- head -->
+        <ellipse cx="60" cy="62" rx="34" ry="36" fill="#c49070"/>
+        <!-- hair dark -->
+        <ellipse cx="60" cy="30" rx="34" ry="20" fill="#1a1008"/>
+        <ellipse cx="60" cy="38" rx="34" ry="14" fill="#1a1008"/>
+        <!-- face shadow -->
+        <ellipse cx="60" cy="65" rx="28" ry="28" fill="#b8805e" opacity=".4"/>
+        <!-- eye left -->
+        <ellipse cx="46" cy="60" rx="5" ry="4.5" fill="#fff"/>
+        <circle cx="47" cy="60" r="2.8" fill="#1a0a02"/>
+        <!-- eye right -->
+        <ellipse cx="74" cy="60" rx="5" ry="4.5" fill="#fff"/>
+        <circle cx="75" cy="60" r="2.8" fill="#1a0a02"/>
+        <!-- eyebrows -->
+        <path d="M40 54 Q46 51 52 53" stroke="#1a0a02" stroke-width="2" fill="none" stroke-linecap="round"/>
+        <path d="M68 53 Q74 51 80 54" stroke="#1a0a02" stroke-width="2" fill="none" stroke-linecap="round"/>
+        <!-- nose -->
+        <path d="M58 65 Q56 72 60 74 Q64 72 62 65" stroke="#9a6040" stroke-width="1.2" fill="none" stroke-linecap="round"/>
+        <!-- mouth -->
+        <path d="M50 82 Q60 86 70 82" stroke="#9a5035" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+        <!-- chin stubble area -->
+        <ellipse cx="60" cy="84" rx="14" ry="8" fill="#b07050" opacity=".3"/>
+        <!-- tattoo forehead cross -->
+        <line x1="42" y1="44" x2="42" y2="52" stroke="#3a2a18" stroke-width="1.2" stroke-linecap="round"/>
+        <line x1="39" y1="47" x2="45" y2="47" stroke="#3a2a18" stroke-width="1.2" stroke-linecap="round"/>
+        <!-- tattoo heart cheek -->
+        <path d="M72 68 Q72 64 76 64 Q80 64 80 68 Q80 72 72 76 Q64 72 64 68 Q64 64 68 64 Q72 64 72 68Z" fill="#c0304a" opacity=".8"/>
+        <!-- crack on forehead (cyber) -->
+        <path d="M56 36 L60 42 L57 46 L61 52" stroke="#2a90d4" stroke-width="1" fill="none" opacity=".8"/>
+        <!-- cyber jaw right side -->
+        <rect x="78" y="68" width="16" height="22" rx="4" fill="#1e3a5a"/>
+        <rect x="80" y="70" width="12" height="3" rx="1" fill="#2a90d4" opacity=".7"/>
+        <rect x="80" y="75" width="12" height="3" rx="1" fill="#4db8f0" opacity=".5"/>
+        <rect x="80" y="80" width="12" height="3" rx="1" fill="#2a90d4" opacity=".4"/>
+        <rect x="80" y="85" width="9" height="2" rx="1" fill="#4db8f0" opacity=".3"/>
+        <!-- glint cyber jaw -->
+        <rect x="88" y="70" width="2" height="16" rx="1" fill="#6ad0ff" opacity=".3"/>
+        <!-- chain necklace -->
+        <path d="M35 118 Q60 125 85 118" stroke="#c0c8d8" stroke-width="3" fill="none" stroke-linecap="round"/>
+        <path d="M35 118 Q60 130 85 118" stroke="#a0a8b8" stroke-width="2" fill="none" stroke-linecap="round" opacity=".5"/>
+        <!-- pendant -->
+        <rect x="54" y="126" width="12" height="12" rx="2" fill="#8090a8"/>
+        <rect x="55" y="127" width="10" height="10" rx="1" fill="#a0b0c0" opacity=".5"/>
+      </svg>
+    </div>
+    <div class="hero-info">
+      <div class="name-badge">
+        <h1>Chatboss</h1>
+        <span class="live-badge">ONLINE</span>
+      </div>
+      <div class="real-name">Powered by <span>Sergei Barracuda</span> · Erik Peter</div>
+      <div class="tags">
+        <span class="tag">Ostrava 713</span>
+        <span class="tag">Czech rap</span>
+        <span class="tag">AK Label</span>
+        <span class="tag hot">Nar. 31. 5. 1990</span>
+        <span class="tag">35 let</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- BIO STRIP -->
+<div class="bio-strip">
+  <div class="bio-cell"><div class="bval">35</div><div class="blbl">Věk</div></div>
+  <div class="bio-cell"><div class="bval">713</div><div class="blbl">PSČ Ostrava</div></div>
+  <div class="bio-cell"><div class="bval">15+</div><div class="blbl">Alb & mixtapů</div></div>
+  <div class="bio-cell"><div class="bval">2008</div><div class="blbl">Kariéra od</div></div>
+</div>
+
+<!-- TABS -->
+<div class="tabs">
+  <button class="tab active" onclick="switchTab('chat')" id="tab-chat">Chat</button>
+  <button class="tab" onclick="switchTab('info')" id="tab-info">Bio & Info</button>
+  <button class="tab" onclick="switchTab('disc')" id="tab-disc">Diskografie</button>
+</div>
+
+<!-- CHAT PANE -->
+<div class="chat-area" id="chatPane">
+  <div class="chat-win" id="chatWin"></div>
+  <div class="learn-box" id="learnBox">
+    <p>// neznám odpověď — nauč mě:</p>
+    <div class="learn-row">
+      <input type="text" id="learnInput" placeholder="Zadej správnou odpověď…"/>
+      <button onclick="confirmLearn()">Naučit</button>
+    </div>
+  </div>
+  <div class="chips-wrap">
+    <div class="chip" onclick="sh('jak se jmenuješ')">jméno</div>
+    <div class="chip" onclick="sh('kolik ti je let')">věk</div>
+    <div class="chip" onclick="sh('odkud jsi')">odkud jsi</div>
+    <div class="chip" onclick="sh('jaká je tvá kariéra')">kariéra</div>
+    <div class="chip" onclick="sh('jaká alba jsi vydal')">alba</div>
+    <div class="chip" onclick="sh('s kým jsi spolupracoval')">spolupráce</div>
+    <div class="chip" onclick="sh('byl jsi ve filmu')">film</div>
+    <div class="chip" onclick="sh('co je 713')">713</div>
+    <div class="chip" onclick="sh('statistiky')">stats</div>
+  </div>
+  <div class="input-wrap">
+    <input type="text" id="uInput" placeholder="Ptej se na Sergei Barracuda…" onkeydown="if(event.key==='Enter')sendMsg()"/>
+    <button class="send-btn" onclick="sendMsg()" aria-label="Odeslat"><i class="ti ti-send" style="font-size:15px"></i></button>
+  </div>
+</div>
+
+<!-- INFO PANE -->
+<div class="info-panel" id="infoPane">
+  <div class="info-section">
+    <div class="info-header">Osobní informace</div>
+    <div class="info-row"><div class="info-key">celé jméno</div><div class="info-val">Erik Peter</div></div>
+    <div class="info-row"><div class="info-key">umělecké jméno</div><div class="info-val">Sergei Barracuda</div></div>
+    <div class="info-row"><div class="info-key">datum nar.</div><div class="info-val">31. května 1990</div></div>
+    <div class="info-row"><div class="info-key">věk</div><div class="info-val">35 let</div></div>
+    <div class="info-row"><div class="info-key">místo nar.</div><div class="info-val">Ostrava, Česká republika</div></div>
+    <div class="info-row"><div class="info-key">znamení</div><div class="info-val">Blíženci (Gemini)</div></div>
+    <div class="info-row"><div class="info-key">národnost</div><div class="info-val">Česká</div></div>
+    <div class="info-row"><div class="info-key">styl</div><div class="info-val">Street rap, trap, hip-hop</div></div>
+    <div class="info-row"><div class="info-key">Instagram</div><div class="info-val"><a href="https://instagram.com/sbarracuda" target="_blank">@sbarracuda</a> · 180 000+ followers</div></div>
+  </div>
+  <div class="info-section">
+    <div class="info-header">Kariéra</div>
+    <div class="info-row"><div class="info-key">začátek</div><div class="info-val">2008 — první kroky v Ostravě</div></div>
+    <div class="info-row"><div class="info-key">první skupina</div><div class="info-val">Fuerza Arma — odešel kvůli neshodám s Yzomandiasem</div></div>
+    <div class="info-row"><div class="info-key">label 2014–2020</div><div class="info-val">Azurit Kingdom (AK) — s raperem Pastorem a DJ Bussym</div></div>
+    <div class="info-row"><div class="info-key">od 2020</div><div class="info-val">Sólová kariéra po rozpadu AK</div></div>
+    <div class="info-row"><div class="info-key">film</div><div class="info-val">BANGER (2022) — hrál sám sebe, premiéra na KVIFF</div></div>
+    <div class="info-row"><div class="info-key">produkce</div><div class="info-val">Doughboy Beatz, Lex Luger, Young Chop, Dream Drums</div></div>
+    <div class="info-row"><div class="info-key">spolupráce</div><div class="info-val">Rytmus, Ektor, Smack, Pil C, Delik a další</div></div>
+  </div>
+  <div class="info-section">
+    <div class="info-header">713 — Ostrava</div>
+    <div class="info-row"><div class="info-key">co je 713</div><div class="info-val">Počáteční trojčíslí ostravského PSČ — symbol původu a identity</div></div>
+    <div class="info-row"><div class="info-key">album 713</div><div class="info-val">Album z roku 2017 pojmenované po ostravském PSČ</div></div>
+    <div class="info-row"><div class="info-key">713 Až na věky</div><div class="info-val">Nejnovější projekt z roku 2024</div></div>
+  </div>
+</div>
+
+<!-- DISCOGRAPHY PANE -->
+<div class="info-panel" id="discPane">
+  <div class="info-header">Diskografie — Sergei Barracuda</div>
+  <div class="disc-item"><div class="disc-year">2010</div><div class="disc-name">Pouliční Ekonomická</div><span class="disc-type dt-mix">Mixtape</span></div>
+  <div class="disc-item"><div class="disc-year">2012</div><div class="disc-name">Pouliční Ekonomická 2 — Nechvalně proslulý</div><span class="disc-type dt-mix">Mixtape</span></div>
+  <div class="disc-item"><div class="disc-year">2014</div><div class="disc-name">AK Mixtape (s AK)</div><span class="disc-type dt-mix">Mixtape</span></div>
+  <div class="disc-item"><div class="disc-year">2015</div><div class="disc-name">Bída & Bolest (s AK)</div><span class="disc-type dt-album">Album</span></div>
+  <div class="disc-item"><div class="disc-year">2016</div><div class="disc-name">Pouliční Ekonomická 2.5 — Notorický Hustler</div><span class="disc-type dt-ep">EP</span></div>
+  <div class="disc-item"><div class="disc-year">2017</div><div class="disc-name">713</div><span class="disc-type dt-album">Album</span></div>
+  <div class="disc-item"><div class="disc-year">2018</div><div class="disc-name">Pouliční Ekonomická 3 — Láska & Loyalita</div><span class="disc-type dt-album">Album</span></div>
+  <div class="disc-item"><div class="disc-year">2019</div><div class="disc-name">Syndikát (s AK)</div><span class="disc-type dt-album">Album</span></div>
+  <div class="disc-item"><div class="disc-year">2019</div><div class="disc-name">Medusa</div><span class="disc-type dt-album">Album</span></div>
+  <div class="disc-item"><div class="disc-year">2020</div><div class="disc-name">Medusa II</div><span class="disc-type dt-album">Album</span></div>
+  <div class="disc-item"><div class="disc-year">2021</div><div class="disc-name">Produkt</div><span class="disc-type dt-album">Album</span></div>
+  <div class="disc-item"><div class="disc-year">2022</div><div class="disc-name">Finesa</div><span class="disc-type dt-album">Album</span></div>
+  <div class="disc-item"><div class="disc-year">2023</div><div class="disc-name">Pouliční Ekonomická 4 — Růst & Prosperita</div><span class="disc-type dt-album">Album</span></div>
+  <div class="disc-item"><div class="disc-year">2024</div><div class="disc-name">713 Až na věky</div><span class="disc-type dt-album">Album</span></div>
+</div>
+
+<!-- FOOTER -->
+<div class="footer">
+  <div class="footer-stats">
+    <div class="fstat">zpráv: <span id="fMsgs">0</span></div>
+    <div class="fstat">naučeno: <span id="fLearned">0</span></div>
+    <div class="fstat">čas: <span id="fTime">0:00</span></div>
+  </div>
+  <div class="footer-btns">
+    <button class="fbtn" onclick="resetChat()">reset</button>
+    <button class="fbtn" onclick="exportDB()" style="color:#4db8f0;border-color:rgba(77,184,240,0.3)">export</button>
+  </div>
+</div>
+
+</div>
+
+<script>
+const DB_O='cb_odp',DB_K='cb_konv',DB_S='cb_stats';
+
+const BASE = {
+  "jak se jmenuješ":["Jmenuji se Sergei Barracuda — občanským jménem Erik Peter. Barracuda jsem si vybral, protože barrakuda je dravá ryba — a já jsem dravý v muzice."],
+  "jak se jmenujes":["Sergei Barracuda, vlastním jménem Erik Peter. Rodák z Ostravy."],
+  "kolik ti je let":["Narodil jsem se 31. května 1990 — je mi 35 let. Znamení Blíženci."],
+  "kolik je ti let":["35 let. Narozeniny 31. května 1990 v Ostravě."],
+  "odkud jsi":["Jsem z Ostravy — 713. To číslo je v mých žilách. Počáteční trojčíslí ostravského PSČ, to je moje identita."],
+  "co je 713":["713 je počáteční trojčíslí ostravského PSČ. Pro mě je to symbol původu, identity a hrdosti. Pojmenoval jsem po tom album v roce 2017 a v roce 2024 vyšlo '713 Až na věky'."],
+  "jaká je tvá kariéra":["Začal jsem v roce 2008. Prošel jsem skupinami Fuerza Arma a Azurit Kingdom (AK) s Pastorem. Od roku 2020 jedu sólo. Mám přes 14 projektů — alba, mixtapy, film BANGER (2022)."],
+  "jaka je tva kariera":["Kariéra od 2008, Ostrava. Skupiny Fuerza Arma, pak Azurit Kingdom. Od 2020 sólo. Film BANGER 2022."],
+  "jaká alba jsi vydal":["Od roku 2010 jsem vydal přes 14 projektů. Série Pouliční Ekonomická (1–4), alba 713, Medusa, Medusa II, Produkt, Finesa, a nejnověji 713 Až na věky (2024). S AK pak Bída & Bolest, Syndikát."],
+  "jaka alba jsi vydal":["Série Pouliční Ekonomická, 713, Medusa I+II, Produkt, Finesa, Růst & Prosperita, 713 Až na věky a další."],
+  "s kým jsi spolupracoval":["Spolupracoval jsem s Rytmusem, Ektorem, Smakem, Pil C, Delikem. Ze zahraničních producentů — Lex Luger, Young Chop, Doughboy Beatz, Dream Drums."],
+  "s kym jsi spolupracoval":["Rytmus, Ektor, Smak, Pil C — to jsou moji lidé. Ze zahraničí Lex Luger a Young Chop."],
+  "byl jsi ve filmu":["Jo. V roce 2022 jsem si zahrál sám sebe ve filmu BANGER režiséra Adama Sedláka. Premiéra proběhla na Mezinárodním filmovém festivalu v Karlových Varech."],
+  "byl jsi ve filmu?":["Film BANGER, 2022. Hrál jsem sám sebe. Premiéra na KVIFF — Karlovy Vary."],
+  "co je azurit kingdom":["Azurit Kingdom (AK) byl label, který založil rapper Pastor. Byl jsem tam s ním a DJ Bussym od 2014 do 2020. Vydali jsme Alba Bída & Bolest (2015) a Syndikát (2019). V březnu 2020 jsme se rozpadli."],
+  "kdo je pastor":["Pastor je rapper, který založil label Azurit Kingdom. Spolu s DJ Bussym jsme tvořili skupinu AK. V roce 2020 jsme se rozešli."],
+  "proč jsi odešel z fuerza arma":["Z Fuerza Arma jsem odešel kvůli neshodám s Yzomandiasem. Pak jsem se připojil k Azurit Kingdom."],
+  "co je pouliční ekonomická":["Pouliční Ekonomická je moje klíčová série. Začala mixem v 2010, pak PE2 (2012), PE2.5 — Notorický Hustler (2016), PE3 — Láska & Loyalita (2018) a PE4 — Růst & Prosperita (2023)."],
+  "nejnovější album":["Poslední album je 713 Až na věky z roku 2024. Před tím Pouliční Ekonomická 4 — Růst & Prosperita (2023)."],
+  "ahoj":["Čau. Co potřebuješ vědět?","Zdravím. Ptej se — jsem Chatboss.","Yo. Co chceš vědět?"],
+  "jak se máš":["V pohodě. Muzika jede, Ostrava žije.","Dobře. 713 always."],
+  "jak se mas":["V klidu. Muzika nikdy nespí."],
+  "statistiky":["__stats__"],
+  "co umíš":["__help__"],
+  "co umis":["__help__"],
+  "pomoc":["__help__"],
+  "kolik je hodin":["__cas__"],
+  "jaké je datum":["__datum__"],
+  "jake je datum":["__datum__"],
+  "nashledanou":["Později. 713.","Čau. Ostrava forever."],
+  "díky":["Jasně.","Vždy."],
+  "diky":["V klidu."],
+};
+
+function nactiOdp(){try{const u=localStorage.getItem(DB_O);return u?{...BASE,...JSON.parse(u)}:{...BASE}}catch{return{...BASE}}}
+function ulozOdp(){const custom={};Object.keys(odpovedi).forEach(k=>{if(!BASE[k])custom[k]=odpovedi[k]});localStorage.setItem(DB_O,JSON.stringify(custom))}
+function nactiKonv(){try{const u=localStorage.getItem(DB_K);return u?JSON.parse(u):[]}catch{return[]}}
+function ulozZ(t,r){const h=nactiKonv();h.push({t,r,c:new Date().toISOString()});if(h.length>200)h.shift();localStorage.setItem(DB_K,JSON.stringify(h))}
+function nactiStats(){try{const u=localStorage.getItem(DB_S);if(u){const s=JSON.parse(u);s.start=Date.now();return s}}catch{}return{msgs:0,learned:0,start:Date.now(),cm:0,cl:0}}
+function ulozStats(){localStorage.setItem(DB_S,JSON.stringify({msgs:stats.msgs,learned:stats.learned,cm:stats.cm,cl:stats.cl}))}
+function exportDB(){const d={odp:odpovedi,konv:nactiKonv(),stats:{msgs:stats.cm,learned:stats.cl}};const b=new Blob([JSON.stringify(d,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='chatboss_'+new Date().toISOString().slice(0,10)+'.json';a.click()}
+
+const odpovedi=nactiOdp(),stats=nactiStats();
+let pending=null,activeTab='chat';
+
+setInterval(()=>{
+  const s=Math.floor((Date.now()-stats.start)/1000),m=Math.floor(s/60),sec=s%60;
+  document.getElementById('fTime').textContent=m+':'+String(sec).padStart(2,'0');
+},1000);
+
+function updStats(){document.getElementById('fMsgs').textContent=stats.msgs;document.getElementById('fLearned').textContent=stats.learned}
+
+function addMsg(text,role,save=true){
+  const win=document.getElementById('chatWin');
+  const d=document.createElement('div');d.className='msg '+role;
+  const av=document.createElement('div');av.className='mav';
+  av.innerHTML=role==='bot'?'<i class="ti ti-user-star"></i>':'Ty';
+  const b=document.createElement('div');b.className='bubble';b.innerHTML=text.replace(/\n/g,'<br>');
+  const t=document.createElement('div');t.className='mtime';
+  const n=new Date();t.textContent=n.getHours()+':'+String(n.getMinutes()).padStart(2,'0');
+  d.appendChild(av);d.appendChild(b);d.appendChild(t);
+  win.appendChild(d);win.scrollTop=win.scrollHeight;
+  if(save)ulozZ(text,role);
+}
+
+function getReply(z){
+  const k=z.trim().toLowerCase().replace(/[?!]/g,'');
+  const exact=odpovedi[k];
+  if(exact){
+    const c=exact[Math.floor(Math.random()*exact.length)];
+    if(c==='__stats__'){const s=Math.floor((Date.now()-stats.start)/1000),m=Math.floor(s/60),sec=s%60;return'Zpráv: '+stats.msgs+'\nNaučeno: '+stats.learned+'\nČas: '+m+' min '+sec+' sek';}
+    if(c==='__help__'){return'Zeptej se na:\n— jméno, věk, odkud jsem\n— kariéra, alba, diskografie\n— 713, Azurit Kingdom\n— spolupráce, film BANGER\nNebo přejdi do záložky Bio & Info / Diskografie.';}
+    if(c==='__cas__'){const n=new Date();return'Je '+n.getHours()+':'+String(n.getMinutes()).padStart(2,'0')+'.';}
+    if(c==='__datum__'){const n=new Date();return'Dnes je '+n.toLocaleDateString('cs-CZ',{day:'numeric',month:'long',year:'numeric'})+'.';}
+    return c;
+  }
+  // fuzzy — keyword matching
+  if(k.includes('jméno')||k.includes('jmeno')||k.includes('jmenuješ')||k.includes('jmenujes'))return odpovedi['jak se jmenuješ'][0];
+  if(k.includes('věk')||k.includes('let')||k.includes('naroze')||k.includes('rok'))return odpovedi['kolik ti je let'][0];
+  if(k.includes('ostrava')||k.includes('odkud')||k.includes('pochází'))return odpovedi['odkud jsi'][0];
+  if(k.includes('713'))return odpovedi['co je 713'][0];
+  if(k.includes('album')||k.includes('alba')||k.includes('disk'))return odpovedi['jaká alba jsi vydal'][0];
+  if(k.includes('kariér')||k.includes('kariera'))return odpovedi['jaká je tvá kariéra'][0];
+  if(k.includes('film')||k.includes('banger'))return odpovedi['byl jsi ve filmu'][0];
+  if(k.includes('spolupráce')||k.includes('spoluprací')||k.includes('rytmus')||k.includes('ektor'))return odpovedi['s kým jsi spolupracoval'][0];
+  if(k.includes('azurit')||k.includes('ak label'))return odpovedi['co je azurit kingdom'][0];
+  if(k.includes('pouliční')||k.includes('poulic'))return odpovedi['co je pouliční ekonomická'][0];
+  if(k.includes('nejnovější')||k.includes('nejnov')||k.includes('poslední'))return odpovedi['nejnovější album'][0];
+  if(k.includes('fuerza')||k.includes('yzomandias'))return odpovedi['proč jsi odešel z fuerza arma'][0];
+  return null;
+}
+
+function sendMsg(){
+  const inp=document.getElementById('uInput');
+  const text=inp.value.trim();if(!text)return;
+  inp.value='';
+  if(activeTab!=='chat')switchTab('chat');
+  addMsg(text,'user');
+  stats.msgs++;stats.cm++;updStats();ulozStats();
+  setTimeout(()=>{
+    const r=getReply(text);
+    if(r)addMsg(r,'bot');
+    else{pending=text.toLowerCase();showLearn()}
+  },300);
+}
+
+function sh(t){document.getElementById('uInput').value=t;sendMsg()}
+function showLearn(){const b=document.getElementById('learnBox');b.classList.add('visible');document.getElementById('learnInput').focus()}
+function hideLearn(){document.getElementById('learnBox').classList.remove('visible');document.getElementById('learnInput').value=''}
+function confirmLearn(){
+  const v=document.getElementById('learnInput').value.trim();
+  if(!v||!pending)return;
+  odpovedi[pending]=[v];stats.learned++;stats.cl++;updStats();ulozOdp();ulozStats();
+  hideLearn();addMsg('Naučeno. Příště odpovím na "'+pending+'".','bot');pending=null;
+}
+document.getElementById('learnInput').addEventListener('keydown',e=>{if(e.key==='Enter')confirmLearn()});
+
+function switchTab(tab){
+  activeTab=tab;
+  ['chat','info','disc'].forEach(t=>{
+    document.getElementById('tab-'+t).classList.toggle('active',t===tab);
+  });
+  document.getElementById('chatPane').style.display=tab==='chat'?'flex':'none';
+  document.getElementById('infoPane').classList.toggle('visible',tab==='info');
+  document.getElementById('discPane').classList.toggle('visible',tab==='disc');
+}
+
+function resetChat(){
+  if(!confirm('Resetovat chat?'))return;
+  localStorage.removeItem(DB_K);localStorage.removeItem(DB_O);localStorage.removeItem(DB_S);
+  Object.keys(odpovedi).forEach(k=>{if(!BASE[k])delete odpovedi[k]});
+  document.getElementById('chatWin').innerHTML='';
+  stats.msgs=0;stats.learned=0;stats.cm=0;stats.cl=0;stats.start=Date.now();
+  updStats();hideLearn();pending=null;
+  addMsg('Chat resetován. Ptej se.','bot');
+}
+
+window.addEventListener('load',()=>{
+  const h=nactiKonv();
+  if(h.length>0){h.slice(-30).forEach(z=>addMsg(z.t,z.r,false));setTimeout(()=>addMsg('Zpět. Konverzaci si pamatuji.','bot'),300)}
+  else{setTimeout(()=>addMsg('Yo. Jsem Chatboss — AI chatbot powered by Sergei Barracuda. Ptej se na jeho život, kariéru, alba nebo přejdi do záložky Bio & Info.','bot'),300)}
+  updStats();
+  document.getElementById('chatPane').style.display='flex';
+});
+</script>
+</body>
+</html>
